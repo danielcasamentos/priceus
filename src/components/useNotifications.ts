@@ -66,25 +66,25 @@ export function useNotifications(userId: string | undefined) {
       const trialNotification: Notification = {
         id: 'trial-reminder',
         user_id: userId!,
-        type: 'trial_reminder',
+        type: 'trial', // O tipo 'trial' já existe no CHECK da tabela
         message: `Seu período de teste termina em ${trialStatus.daysRemaining} dia(s)! Assine para não perder acesso.`,
         link: '/pricing',
-        is_read: false,
+        read: false, // Corrigido de is_read para read
         created_at: new Date().toISOString(),
         related_id: null,
       };
       allNotifications.unshift(trialNotification);
     }
 
-    return allNotifications;
-  }, [notifications, trialStatus, userId]);
+    return allNotifications.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()); // Garante que as notificações estejam ordenadas por data de criação
+  }, [notifications, trialStatus, userId]); // Adicionado notifications como dependência
 
-  const unreadCount = useMemo(() => notificationsWithTrial.filter(n => !n.is_read).length, [notificationsWithTrial]);
+  const unreadCount = useMemo(() => notificationsWithTrial.filter(n => !n.read).length, [notificationsWithTrial]);
 
   const markAsRead = useCallback(async (id: string) => {
     if (id === 'trial-reminder' || !userId) return;
-    try {
-      await supabase.from('notifications').update({ is_read: true }).eq('id', id);
+    try { // Corrigido de is_read para read
+      await supabase.from('notifications').update({ read: true }).eq('id', id);
       // A UI será atualizada pelo listener do Supabase
     } catch (error) {
       console.error('Erro ao marcar como lida:', error);
@@ -94,7 +94,7 @@ export function useNotifications(userId: string | undefined) {
   const markAllAsRead = useCallback(async () => {
     if (!userId) return;
     try {
-      await supabase.from('notifications').update({ is_read: true }).eq('user_id', userId).eq('is_read', false);
+      await supabase.from('notifications').update({ read: true }).eq('user_id', userId).eq('read', false); // Corrigido de is_read para read
       // A UI será atualizada pelo listener do Supabase
     } catch (error) {
       console.error('Erro ao marcar todas como lidas:', error);

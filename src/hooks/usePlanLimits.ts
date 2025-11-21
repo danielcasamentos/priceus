@@ -100,6 +100,7 @@ export function usePlanLimits(): PlanLimits {
         setContractsSignedCount(contractsSignedCount || 0);
       } catch (error) {
         console.error('Error fetching plan limits:', error);
+        // Não faz nada no erro, apenas loga. O próximo intervalo tentará novamente.
       } finally {
         setLoading(false);
       }
@@ -107,8 +108,10 @@ export function usePlanLimits(): PlanLimits {
 
     fetchCounts();
 
-    // Atualizar a cada 30 segundos
-    const interval = setInterval(fetchCounts, 30000);
+    // 🔥 OTIMIZAÇÃO: Aumenta o intervalo para 2 minutos (120000 ms)
+    // Reduz a frequência de requisições, diminuindo a chance de erros de conexão
+    // em projetos que pausam por inatividade.
+    const interval = setInterval(fetchCounts, 120000);
     return () => clearInterval(interval);
   }, [user]);
 

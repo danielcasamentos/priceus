@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Alert } from '../ui/Alert';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
 import { Mail, ArrowLeft } from 'lucide-react';
+import { Alert } from '../ui/Alert';
 
 interface ForgotPasswordFormProps {
   onBackToLogin?: () => void;

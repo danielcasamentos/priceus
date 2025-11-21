@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase, Notification } from '../lib/supabase';
 import { useTrialStatus } from '../hooks/useTrialStatus';
+import { User } from '@supabase/supabase-js';
 
 /**
  * Hook customizado para gerenciar notificações.
@@ -12,12 +13,13 @@ import { useTrialStatus } from '../hooks/useTrialStatus';
  * - Marcar notificações como lidas (individualmente ou todas).
  * - Calcular a contagem de não lidas.
  *
- * @param userId - O ID do usuário para o qual as notificações devem ser buscadas.
+ * @param user - O objeto de usuário autenticado do Supabase.
  */
-export function useNotifications(userId: string | undefined) {
+export function useNotifications(user: User | null) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
-  const trialStatus = useTrialStatus(userId);
+  const trialStatus = useTrialStatus(user);
+  const userId = user?.id;
 
   const loadNotifications = useCallback(async () => {
     if (!userId) return;
@@ -44,10 +46,22 @@ export function useNotifications(userId: string | undefined) {
 
     loadNotifications();
 
+    // Função para tocar o som de notificação
+    const playNotificationSound = () => {
+      const audio = new Audio('/notification.mp3'); // Caminho para o arquivo na pasta /public
+      audio.volume = 0.5; // Define o volume para 50% (0.0 a 1.0)
+      audio.play().catch(error => {
+        // O erro "play() failed because the user didn't interact with the document first" é comum.
+        // O navegador bloqueia a reprodução automática de som até que o usuário clique em algo.
+        console.log("Tentativa de tocar som de notificação bloqueada pelo navegador:", error.message);
+      });
+    };
+
     const channel = supabase
       .channel(`notifications-for-${userId}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` }, (payload) => {
         setNotifications(prev => [payload.new as Notification, ...prev]);
+        playNotificationSound(); // Toca o som quando uma nova notificação chega
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` }, (payload) => {
         setNotifications(prev => prev.map(n => n.id === payload.old.id ? { ...(payload.new as Notification) } : n));
@@ -57,7 +71,7 @@ export function useNotifications(userId: string | undefined) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, loadNotifications]);
+  }, [userId]);
 
   const notificationsWithTrial = useMemo(() => {
     const allNotifications = [...notifications];
@@ -66,7 +80,7 @@ export function useNotifications(userId: string | undefined) {
       const trialNotification: Notification = {
         id: 'trial-reminder',
         user_id: userId!,
-        type: 'trial_reminder',
+        type: 'trial', // Corrigido para corresponder ao tipo definido no banco de dados
         message: `Seu período de teste termina em ${trialStatus.daysRemaining} dia(s)! Assine para não perder acesso.`,
         link: '/pricing',
         is_read: false,

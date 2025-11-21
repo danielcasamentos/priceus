@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { Button } from '../ui/button';
+import { Button } from '../ui/Button';
+import { Lock, CheckCircle } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Alert } from '../ui/Alert';
-import { Lock, CheckCircle } from 'lucide-react';
 
 export function ResetPasswordForm() {
   const navigate = useNavigate();

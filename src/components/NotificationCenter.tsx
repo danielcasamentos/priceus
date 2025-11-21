@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Bell, Check, X, Loader2, AlertCircle, MessageSquare, FileSignature, Calendar, DollarSign, TrendingUp, Users, Star } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useNotifications } from '../hooks/useNotifications';
-import { useTrialStatus } from '../hooks/useTrialStatus'; // Import useTrialStatus
-import type { Notification } from '../lib/supabase'; // Import Notification
+import type { Notification } from '../lib/supabase';
+import { useAuth } from '../hooks/useAuth';
 
 interface NotificationCenterProps {
   userId: string;
-  initialNotifications: Notification[];
   onNavigate: (page: string) => void;
 }
 
@@ -42,28 +40,27 @@ const getNotificationIcon = (type: string) => {
     case 'plan_limit_reached':
     case 'plan_limit_approaching':
       return <AlertCircle className="w-4 h-4 text-red-600" />;
-    case 'trial_reminder': // Add this case
+    case 'trial': // Corrigido para 'trial' conforme o CHECK da tabela
       return <AlertCircle className="w-4 h-4 text-red-600" />;
     default:
       return <Bell className="w-4 h-4 text-gray-600" />;
   }
 };
 
-export default function NotificationCenter({ userId, initialNotifications, onNavigate }: NotificationCenterProps) {
+export default function NotificationCenter({ userId, onNavigate }: NotificationCenterProps) {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const bellRef = useRef<HTMLButtonElement>(null);
+  const { user } = useAuth();
 
-  const trialStatus = useTrialStatus(userId); // Use the hook
-  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications(userId, initialNotifications, trialStatus);
+  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications(user);
 
   const handleNotificationClick = (notification: Notification) => {
     // A notificação de trial sempre navega para a página de preços
-    if (notification.id === 'trial-reminder') {
+    if (notification.id === 'trial-reminder' || notification.type === 'trial') {
       // A rota '/pricing' não é uma "page" do dashboard, então navegamos diretamente.
       // Idealmente, o onNavigate poderia lidar com isso, mas para simplificar:
       window.location.href = '/pricing';
-      onNavigate('pricing'); // Supondo que 'pricing' seja a rota
       setShowDropdown(false);
       return;
     }
@@ -150,7 +147,7 @@ export default function NotificationCenter({ userId, initialNotifications, onNav
                   key={notification.id}
                   onClick={() => handleNotificationClick(notification)}
                   className={`flex items-start gap-3 p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
-                    notification.is_read ? 'opacity-70' : 'bg-green-50/50'
+                    notification.is_read ? 'opacity-70' : 'bg-blue-50/50'
                   }`}
                 >
                   <div className="flex-shrink-0 mt-1">

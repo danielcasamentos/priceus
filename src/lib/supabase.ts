@@ -60,3 +60,15 @@ export interface Lead {
   created_at: string;
   updated_at: string;
 }
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'warning' | 'success' | 'error' | 'trial';
+  is_read: boolean; // Mantido como is_read para consistência com o banco de dados
+  created_at: string;
+  updated_at: string;
+  data?: any;
+}
