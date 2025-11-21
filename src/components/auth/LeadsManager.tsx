@@ -323,7 +323,7 @@ export function LeadsManager({ userId }: { userId: string }) {
               tipo: 'receita',
               origem: 'lead',
               descricao: `Contratação: ${lead.nome_cliente} - ${templates[lead.template_id]?.nome_template || 'Serviço'}`,
-              valor: lead.valor_total,
+              valor: lead.orcamento_detalhe?.priceBreakdown?.total ?? lead.valor_total,
               data: new Date().toISOString().split('T')[0],
               status: 'pendente',
               lead_id: leadId,

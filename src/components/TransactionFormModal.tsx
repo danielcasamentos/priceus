@@ -7,8 +7,10 @@ import { CompanyTransaction, CompanyCategory } from '../hooks/useCompanyTransact
  */
 const parseCurrency = (value: string): number => {
   if (!value) return 0;
-  // Permite apenas números e uma vírgula ou ponto decimal
-  const cleanedValue = value.replace(/[^0-9,.]/g, '').replace(',', '.');
+  // 1. Remove pontos de milhar (ex: 1.234 -> 1234)
+  // 2. Substitui a vírgula decimal por um ponto (ex: 1234,56 -> 1234.56)
+  // 3. Remove quaisquer outros caracteres não numéricos (exceto o ponto decimal)
+  const cleanedValue = value.replace(/\./g, '').replace(',', '.').replace(/[^0-9.]/g, '');
   const parsed = parseFloat(cleanedValue);
   return isNaN(parsed) ? 0 : parsed;
 };
