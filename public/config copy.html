@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configuração do Template</title>
+  <style>
+    /* config.css - NOVO DESIGN ADMIN (Mobile-First) */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #95a5a6;
+    --success-color: #2ecc71;
+    --error-color: #e74c3c;
+    --bg-main: #f4f7f9;
+    --bg-card: #ffffff;
+    --text-color: #34495e;
+    --border-color: #ecf0f1;
+    --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-color);
+    line-height: 1.6;
+    padding-bottom: 50px; /* Espaço para mobile */
+}
+
+/* Header Fixo e Profissional */
+header {
+    background-color: var(--bg-card);
+    padding: 15px 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-wrap: wrap; /* Permite quebrar no mobile */
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 4px solid var(--primary-color);
+}
+
+.config-header h1 {
+    font-size: 1.5em;
+    color: var(--primary-color);
+    flex-basis: 100%; /* Ocupa a linha toda no topo */
+    margin-bottom: 10px;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+/* Container Principal */
+.container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+/* Blocos de Configuração */
+.config-block {
+    background-color: var(--bg-card);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-light);
+    margin-bottom: 30px;
+    border-top: 5px solid var(--primary-color);
+}
+
+.config-block h2 {
+    font-size: 1.3em;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.config-hint {
+    font-size: 0.9em;
+    color: var(--secondary-color);
+    margin-bottom: 20px;
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 10px;
+}
+
+/* Inputs e Formulário */
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    font-size: 0.95em;
+}
+
+.input-group input[type="text"],
+.input-group input[type="number"],
+.input-group input[type="email"],
+.input-group input[type="color"],
+.input-group select,
+.input-group textarea,
+.action-row-column input,
+.action-row-column select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1em;
+    transition: border-color 0.3s;
+    margin-bottom: 10px; /* Espaçamento entre inputs na coluna */
+}
+
+.input-group input[type="color"] {
+    height: 40px;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.input-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Link de Compartilhamento */
+.input-group #linkTemplate {
+    background-color: #f0f4f7;
+    cursor: default;
+    margin-bottom: 5px;
+}
+
+.input-group #btnCopiarLink {
+    margin-top: -10px;
+    display: block;
+    width: 100%;
+}
+
+/* Checkbox e Radio */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    font-size: 0.95em;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin-right: 10px;
+    width: auto;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+/* Blocos Dinâmicos de Lista (CRUD) */
+.dynamic-list {
+    margin-top: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.dynamic-item {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border-color);
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.dynamic-item:last-child {
+    border-bottom: none;
+}
+
+.dynamic-item:hover {
+    background-color: #f9fbfd;
+}
+
+.dynamic-item span {
+    flex-basis: 100%; /* Ocupa a largura total no mobile */
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+.dynamic-item .product-info {
+    display: flex;
+    align-items: center;
+    flex-basis: 100%;
+    margin-bottom: 5px;
+}
+
+.product-thumb {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 10px;
+    border: 1px solid var(--border-color);
+}
+
+/* Linha de Ação (Adicionar/Editar) */
+.action-row-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0; /* Removido para controlar o espaçamento individualmente */
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Botões */
+.btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1em;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.btn-outline {
+    background-color: white;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.btn-outline-secondary {
+    background-color: white;
+    color: var(--secondary-color);
+    border: 1px solid var(--secondary-color);
+}
+
+
+.btn-primary:hover { background-color: #2980b9; }
+.btn-secondary:hover { background-color: #7f8c8d; }
+.btn-outline:hover { background-color: #f0f8ff; }
+
+/* Item de Edição */
+.edit-item-row {
+    background-color: #fcfcfc;
+    border: 1px dashed #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 10px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.edit-item-row .input-group {
+    margin-bottom: 10px;
+}
+
+.edit-item-row .input-group:last-of-type {
+    margin-bottom: 0;
+}
+
+/* Linha de ação para adicionar produto/campo (ex: nome, valor, botão) */
+.action-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr) 100px;
+    gap: 10px;
+    align-items: center;
+    margin-top: 15px;
+}
+
+/* Ajustes para mobile */
+@media (max-width: 600px) {
+    .action-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    .action-row-column {
+      padding-top: 0;
+    }
+    .action-row-column input,
+    .action-row-column select,
+    .input-group input,
+    .input-group select,
+    .input-group textarea {
+        margin-bottom: 10px;
+    }
+    .action-row-column .btn {
+      width: 100%;
+      margin-top: 5px;
+    }
+
+    .dynamic-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    .dynamic-item span {
+        flex-basis: auto;
+    }
+    .dynamic-item .product-info {
+        margin-bottom: 10px;
+    }
+
+    .config-header h1 {
+        font-size: 1.3em;
+    }
+    
+    .header-buttons {
+      justify-content: space-between;
+    }
+    
+    .header-buttons button {
+      flex: 1 1 auto; /* Os botões ocuparão a largura disponível */
+      font-size: 0.9em;
+      padding: 8px;
+    }
+}
+
+/* Item de Lista (Visualização) */
+.product-item, .campo-item, .pagamento-item, .sazonal-item, .localidade-item, .cupom-item {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--border-color);
+    transition: background-color 0.2s;
+}
+
+.product-item:last-child, .campo-item:last-child, .pagamento-item:last-child, .sazonal-item:last-child, .localidade-item:last-child, .cupom-item:last-child {
+    border-bottom: none;
+}
+
+.product-item:hover, .campo-item:hover, .pagamento-item:hover, .sazonal-item:hover, .localidade-item:hover, .cupom-item:hover {
+    background-color: #f9fbfd;
+}
+
+.item-main-info {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex: 1; /* Ocupa o máximo de espaço */
+    min-width: 0;
+}
+
+.item-main-info strong {
+    font-size: 1em;
+    color: var(--text-color);
+    margin-right: 5px;
+}
+
+.item-details {
+    flex: 1 1 100%;
+    font-size: 0.85em;
+    color: var(--secondary-color);
+    margin-left: 50px; /* Alinha com o texto principal */
+}
+
+.item-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: auto; /* Alinha à direita */
+}
+
+.item-actions button {
+    padding: 8px;
+}
+
+/* Produtos (Específico) */
+.produto-info {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex: 1;
+}
+
+.product-thumb {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.pagamento-tipo, .sazonal-valor, .localidade-valor {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #007bff;
+    min-width: 80px;
+    text-align: right;
+}
+.cupom-valor {
+    color: var(--success-color);
+}
+
+/* Tutorial Modal */
+.tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.tutorial-content {
+    background: var(--bg-card);
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 90%;
+}
+
+.tutorial-content iframe {
+    width: 100%;
+    max-width: 800px;
+    height: 400px;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.tutorial-content #btnFecharTutorial {
+    margin-top: 10px;
+}
+
+@media (max-width: 900px) {
+    .tutorial-content iframe {
+        height: 300px;
+    }
+}
+
+@media (max-width: 560px) {
+    .tutorial-content iframe {
+        height: 200px;
+    }
+}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <header class="config-header">
+    <h1 id="templateTitle">⚙️ Configurações do Template</h1>
+    <div class="header-buttons">
+      <button id="btnVoltarDashboard" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left"></i> Voltar para o Dashboard
+      </button>
+      <button id="btnVerCliente" class="btn btn-outline" style="display:none;">
+        <i class="fa-solid fa-eye"></i> Ver Cliente
+      </button>
+      <button id="btnSalvarConfiguracoes" class="btn btn-primary">
+        <i class="fa-solid fa-floppy-disk"></i> Salvar
+      </button>
+      <button id="btnTutorial" class="btn btn-outline">
+        <i class="fa-solid fa-circle-play"></i> Ver Tutorial
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="statusModal" class="modal"><div class="modal-content"><p id="modalMessage"></p></div></div>
+
+    <section class="config-block">
+      <h2>📝 Informações Básicas</h2>
+      <div class="input-group">
+        <label for="nomeTemplate">Nome do Orçamento</label>
+        <input type="text" id="nomeTemplate" placeholder="Ex: Pacote Casamento Luxo" required>
+      </div>
+      <div class="input-group">
+        <label for="linkTemplate">Link para o Cliente (Compartilhe)</label>
+        <input type="text" id="linkTemplate" readonly>
+        <button id="btnCopiarLink" class="btn btn-outline-secondary"><i class="fa-solid fa-copy"></i> Copiar</button>
+      </div>
+    </section>
+
+    <section class="config-block">
+      <h2>📸 Produtos e Serviços</h2>
+      <p class="config-hint">O que o cliente pode escolher ou o que está incluso no pacote.</p>
+
+      <div id="listaProdutos">
+        </div>
+
+      <button id="btnAdicionarProduto" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i> Adicionar Produto
+      </button>
+    </section>
+
+    <section class="config-block">
+      <h2>❓ Campos Extras do Formulário</h2>
+      <p class="config-hint">Perguntas adicionais para entender a necessidade do cliente (ex: Local, Horário).</p>
+      
+      <div id="listaCampos">
+        </div>
+
+      <button id="btnAdicionarCampo" class="btn btn-outline">
+        <i class="fa-solid fa-plus"></i> Adicionar Campo
+      </button>
+    </section>
+
+    <section class="config-block">
+      <h2>💰 Formas de Pagamento</h2>
+      <p class="config-hint">Acrescente descontos ou acréscimos para cada forma de pagamento.</p>
+      <div id="listaFormasPagamento"></div>
+      <button id="btnAdicionarPagamento" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i> Adicionar Forma de Pagamento
+      </button>
+    </section>
+
+    <section class="config-block">
+      <h2>🎄 Acréscimos Sazonais</h2>
+      <p class="config-hint">Acréscimos automáticos aplicados por mês (ex: Dezembro).</p>
+      <div id="listaAcrescimosSazonais"></div>
+      <button id="btnAdicionarAcrescimoSazonal" class="btn btn-outline">
+        <i class="fa-solid fa-plus"></i> Adicionar Acréscimo Sazonal
+      </button>
+    </section>
+
+    <section class="config-block">
+      <h2>🌍 Acréscimos por Localidade</h2>
+      <p class="config-hint">Valores extras por deslocamento ou cidade.</p>
+      <div id="listaAcrescimosLocalidade"></div>
+      <button id="btnAdicionarAcrescimoLocalidade" class="btn btn-outline">
+        <i class="fa-solid fa-plus"></i> Adicionar Localidade
+      </button>
+    </section>
+
+    <section class="config-block">
+      <h2>🎟️ Cupons de Desconto</h2>
+      <p class="config-hint">Crie códigos promocionais para seus clientes.</p>
+      <div id="listaCupons"></div>
+      <button id="btnAdicionarCupom" class="btn btn-outline">
+        <i class="fa-solid fa-plus"></i> Adicionar Cupom
+      </button>
+    </section>
+
+    <section class="config-block">
+        <h2>⚙️ Opções Adicionais e WhatsApp</h2>
+        <p class="config-hint">Comportamento da página do cliente e da mensagem do WhatsApp.</p>
+        
+        <div class="input-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="bloquearCamposObrigatorios"> 
+                Bloquear seleção de produtos/pacotes até o cliente preencher os dados de contato obrigatórios.
+            </label>
+        </div>
+        
+        <div class="input-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="ocultarValoresIntermediarios"> 
+                Ocultar Acréscimos/Descontos (Sazonal e Localidade) no resumo, mostrando apenas o total.
+            </label>
+            <small style="color:#777">Obs: Desconto do cupom e do pagamento sempre são exibidos.</small>
+        </div>
+
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--border-color);">
+
+        <h3>💬 Mensagem de Abertura do WhatsApp</h3>
+        <p class="config-hint">
+            Personalize a saudação inicial. Use **[campo_ID]** para dados do cliente (ex: [nome], [email], [dataevento], [cidadeevento]) e **[fotografo]**, **[nome_template]**, **[servicos]**, **[total]**, **[pagamento]** para dados do orçamento.
+        </p>
+        <div class="input-group">
+            <label for="textoWhatsApp">Texto do WhatsApp:</label>
+            <textarea id="textoWhatsApp" rows="8" placeholder="O texto padrão será preenchido pelo JS."></textarea>
+        </div>
+    </section>
+
+
+  </main>
+
+  <div id="tutorialOverlay" class="tutorial-overlay" style="display:none;">
+    <div class="tutorial-content">
+      <iframe id="tutorialVideo" width="560" height="315"
+        src=""
+        title="Tutorial de configuração" frameborder="0" allowfullscreen>
+      </iframe>
+      <button id="btnFecharTutorial" class="btn btn-secondary">Entendi</button>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/config.js') }}"></script>
+</body>
+</html>
