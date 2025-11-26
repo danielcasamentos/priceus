@@ -723,8 +723,19 @@ export function LeadsManager({ userId }: { userId: string }) {
                       <div className="text-sm text-gray-500">{lead.email_cliente || '—'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {templates[lead.template_id]?.nome_template || 'Template não encontrado'}
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-900">
+                          {templates[lead.template_id]?.nome_template || 'Template não encontrado'}
+                        </span>
+                        {/* Botão para editar o template diretamente */}
+                        <a
+                          href={`/dashboard?page=templates&edit=${lead.template_id}`}
+                          className="text-blue-500 hover:text-blue-700"
+                          title="Editar este template"
+                          onClick={(e) => e.stopPropagation()} // Evita que o clique se propague para a linha
+                        >
+                          <Edit className="w-3 h-3" />
+                        </a>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -755,7 +766,12 @@ export function LeadsManager({ userId }: { userId: string }) {
                         </button>
                       )}
                       <button
-                        onClick={() => setContractLead(lead)}
+                        onClick={() => {
+                          // Garante que o lead tenha um nome de cliente antes de abrir o gerador de contrato
+                          if (lead.nome_cliente) {
+                            setContractLead(lead);
+                          }
+                        }}
                         className="text-purple-600 hover:text-purple-900 disabled:text-gray-400 disabled:cursor-not-allowed"
                         title="Gerar contrato"
                         disabled={contracts[lead.id]}

@@ -5,7 +5,7 @@ import { TrialBanner } from '../components/TrialBanner';
 import { FreePlanBanner } from '../components/FreePlanBanner';
 import { usePlanLimits } from '../hooks/usePlanLimits';
 import { LeadsManager } from '../components/LeadsManager';
-import { ContractTemplateEditor } from '../components/ContractTemplateEditor';
+import { TemplateEditor } from '../components/TemplateEditor';
 import { TemplatesManager } from '../components/TemplatesManager';
 import { ProfileEditorWithThemeSelector } from '../components/ProfileEditorWithThemeSelector';
 import { HelpCenter } from '../components/HelpCenter';
@@ -172,8 +172,8 @@ export function DashboardPage() {
             <Breadcrumbs items={getBreadcrumbs()} />
 
             {editingTemplateId ? (
-             
-              <ContractTemplateEditor // Usar o ContractTemplateEditor
+
+              <TemplateEditor
                 templateId={editingTemplateId}
                 onBack={() => setEditingTemplateId(null)}
               />
