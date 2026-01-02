@@ -38,39 +38,30 @@
 
     <link rel="canonical" href="https://priceus.com.br" />
 
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "PriceU$",
-      "applicationCategory": "BusinessApplication",
-      "operatingSystem": "Web",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "BRL",
-        "priceValidUntil": "2025-12-31",
-        "availability": "https://schema.org/InStock"
-      },
-      "description": "Sistema completo para criar orçamentos, propostas e cotações online com captura automática de leads",
-      "url": "https://priceus.com.br",
-      "image": "https://priceus.com.br/Logo Price Us.png",
-      "author": {
-        "@type": "Organization",
-        "name": "PriceU$"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "150"
-      }
-    }
-    </script>
+  <script>navigator.serviceWorker.register("pwabuilder-adv-sw.js")</script> 
+    
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <link rel="manifest" href="manifest.json" />  </script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          // O caminho AGORA usa a barra inicial, garantindo que o arquivo seja encontrado na raiz
+          navigator.serviceWorker.register('/pwabuilder-adv-sw.js')
+            .then(registration => {
+              console.log('Service Worker Registrado com sucesso! Scope:', registration.scope);
+            })
+            .catch(error => {
+              console.log('Falha no registro do Service Worker:', error);
+            });
+        });
+      }
+    </script>
 
+    <script type="module" src="/src/main.tsx"></script>
+  
+<script type="application/ld+json"></script>
     <!--Start of Tawk.to Script-->
     <script type="text/javascript">
     var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();

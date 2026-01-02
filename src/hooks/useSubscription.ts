@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from './useAuth'
 import { getProductByPriceId } from '../stripe-config'
+import { isPrivilegedUser } from '../config/privilegedUsers'
 
 interface Subscription {
   subscription_status: string
@@ -29,7 +30,8 @@ export function useSubscription() {
     return getProductByPriceId(subscription.price_id)
   }
 
-  const isActive = subscription?.subscription_status === 'active'
+  const isPrivileged = isPrivilegedUser(user?.email)
+  const isActive = isPrivileged || subscription?.subscription_status === 'active'
   const isTrialing = subscription?.subscription_status === 'trialing'
   const isPastDue = subscription?.subscription_status === 'past_due'
   const isCanceled = subscription?.subscription_status === 'canceled'

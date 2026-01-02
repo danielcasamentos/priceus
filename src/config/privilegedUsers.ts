@@ -3,7 +3,8 @@
  * Estes emails têm bypass completo da Stripe e limites
  */
 export const PRIVILEGED_EMAILS = [
-  'odanielfotografo@icloud.com'
+  'odanielfotografo@icloud.com',
+  'danielazevedofotografia@gmail.com'
 ] as const;
 
 export const isPrivilegedUser = (email: string | undefined): boolean => {

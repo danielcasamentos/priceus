@@ -1,51 +1,87 @@
 {
-  "background_color": "#ffffff",
-  "description": "Sistema completo para criar orçamentos, propostas e cotações online. Capture leads automaticamente, gerencie contratos e perfil público. Teste grátis 14 dias!",
+  "name": "PriceUs",
+  "short_name": "PriceUs",
+  "description": "Sistema completo para criar orçamentos, propostas e cotações online. Capture leads automaticamente, gerencie contratos e avan perfil público. Teste grátis 14 dias!",
+  "id": "/",
   "dir": "ltr",
-  "display": "standalone",
-  "name": "PriceU$",
-  "orientation": "any",
-  "scope": "/",
-  "short_name": "PriceU$",
+  "lang": "pt-BR",
   "start_url": "/",
-  "theme_color": "#39c45b",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "window-controls-overlay"
+  ],
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#39C45B",
+  "categories": [
+    "business",
+    "finance",
+    "utility"
+  ],
   "icons": [
     {
-      "src": "https://priceus.com.br/favicon.svg",
+      "src": "/favicon.svg",
       "type": "image/svg+xml",
-      "isSquare": false,
-      "isPng": false,
-      "isWebp": false,
-      "isJpg": false,
-      "width": 0,
-      "is512x512": false,
-      "is256x256": false,
-      "is192x192": false
+      "sizes": "any",
+      "purpose": "any"
     },
     {
-      "src": "https://priceus.com.br/Logo Price Us.png",
+      "src": "/Logo_Price_Us_192x192.png",
       "type": "image/png",
-      "sizes": "500x500",
-      "isSquare": true,
-      "isPng": true,
-      "isWebp": false,
-      "isJpg": false,
-      "width": 500,
-      "is512x512": false,
-      "is256x256": false,
-      "is192x192": false
+      "sizes": "192x192",
+      "purpose": "any"
     },
     {
-      "src": "https://priceus.com.br/favicon.ico",
-      "type": "image/x-icon",
-      "isSquare": false,
-      "isPng": false,
-      "isWebp": false,
-      "isJpg": false,
-      "width": 0,
-      "is512x512": false,
-      "is256x256": false,
-      "is192x192": false
+      "src": "/Logo_price_Us_512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Novo Orçamento",
+      "url": "/orcamento/novo",
+      "description": "Comece a criar um novo orçamento rapidamente."
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/ss-dashboard-priceus.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Visão geral da Dashboard."
+    },
+    {
+      "src": "/ss-cricao-orcamento.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Tela de criação de novos orçamentos."
+    },
+    {
+      "src": "/ss-leads-priceus.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Tela de criação de novos orçamentos."
+    },
+    {
+      "src": "/ss-agendainteligente-priceus.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Tela de criação de novos orçamentos."
+    },
+    {
+      "src": "/ss-financeiro-priceus.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Tela de criação de novos orçamentos."
     }
   ]
 }
