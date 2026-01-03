@@ -42,6 +42,7 @@ export function ContractGenerator({ userId, lead, onClose, onSuccess }: Contract
   const [contractContent, setContractContent] = useState(''); // 🔥 Novo estado para o conteúdo editável
   const [isEditing, setIsEditing] = useState(false); // 🔥 Novo estado para controlar o modo de edição
   const [userObservations, setUserObservations] = useState('');
+  const [showProductValues, setShowProductValues] = useState(true);
   const [expirationDays, setExpirationDays] = useState(7);
   const [loading, setLoading] = useState(false);
   const [generatedLink, setGeneratedLink] = useState<string | null>(null);
@@ -213,6 +214,7 @@ export function ContractGenerator({ userId, lead, onClose, onSuccess }: Contract
         ajuste_sazonal: priceBreakdown.ajusteSazonal || 0,
         ajuste_geografico: priceBreakdown.ajusteGeografico?.percentual || 0,
         forma_pagamento: formaPagamentoNome,
+        show_product_values: showProductValues, // 🔥 Adiciona a opção ao JSON
         forma_pagamento_detalhes: formaPagamentoCompleta || null, // Salva o objeto completo
         ocultar_valores_intermediarios: ocultarValoresIntermediarios,
       };

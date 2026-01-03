@@ -76,6 +76,9 @@ export function LeadsManager({ userId }: { userId: string }) {
   const [whatsappMessageBody, setWhatsappMessageBody] = useState<string>('');
   const [disponibilidadeLead, setDisponibilidadeLead] = useState<AvailabilityResult | null>(null);
 
+  const [whatsAppModalLead, setWhatsAppModalLead] = useState<Lead | null>(null);
+  const [includeProductValues, setIncludeProductValues] = useState<boolean>(true);
+
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const planLimits = usePlanLimits(); // useMemo was removed from import, but usePlanLimits is used
@@ -111,14 +114,14 @@ export function LeadsManager({ userId }: { userId: string }) {
       setDetalhesOrcamento(savedOrcamentoDetalhe);
       setLoadingDetalhes(false);
       // Agora, geramos a prévia da mensagem do WhatsApp
-      generateAndSetWhatsappMessage(lead, savedOrcamentoDetalhe, true);
+      generateAndSetWhatsappMessage(lead, savedOrcamentoDetalhe, true, true); // Preview sempre com valores
     }
 
     return savedOrcamentoDetalhe;
   };
 
   // Função para gerar e armazenar o corpo da mensagem do WhatsApp
-  const generateAndSetWhatsappMessage = async (lead: Lead, savedOrcamentoDetalhe: LeadOrcamentoDetalhe, updateState: boolean): Promise<string> => {
+  const generateAndSetWhatsappMessage = async (lead: Lead, savedOrcamentoDetalhe: LeadOrcamentoDetalhe, updateState: boolean, showProductValues = true): Promise<string> => {
     const template: TemplateFromDB = templates[lead.template_id];
     const { data: profile } = await supabase
       .from('profiles')
@@ -179,6 +182,7 @@ export function LeadsManager({ userId }: { userId: string }) {
       customFields: savedOrcamentoDetalhe.customFields || [],
       customFieldsData: savedOrcamentoDetalhe.customFieldsData || {},
       context: 'photographer-to-client',
+      showProductValues: showProductValues,
     });
 
     if (updateState) {
@@ -411,32 +415,40 @@ export function LeadsManager({ userId }: { userId: string }) {
     }
   };
 
-  const sendWhatsAppMessage = async (lead: Lead) => {
+  const sendWhatsAppMessage = (lead: Lead) => {
     if (!lead.telefone_cliente) {
       alert('❌ Este lead não possui telefone cadastrado');
       return;
     }
+    setIncludeProductValues(true); // Reseta para o padrão
+    setWhatsAppModalLead(lead);
+  };
 
+  const handleConfirmSendWhatsApp = async () => {
+    if (!whatsAppModalLead) return;
+    const lead = whatsAppModalLead;
     try {
       // 1. Carregar os detalhes do orçamento para este lead específico
       const savedOrcamentoDetalhe = await loadDetalhesOrcamento(lead, false);
       if (!savedOrcamentoDetalhe) {
         alert('❌ Não foi possível carregar os detalhes do orçamento para este lead.');
+        setWhatsAppModalLead(null);
         return;
       }
 
       // 2. Gerar a mensagem com os detalhes carregados
-      const disponibilidade = lead.data_evento ? await checkAvailability(userId, lead.data_evento) : null;
-      const mensagem = await generateAndSetWhatsappMessage(lead, savedOrcamentoDetalhe, false);
+      const mensagem = await generateAndSetWhatsappMessage(lead, savedOrcamentoDetalhe, false, includeProductValues);
 
       // 🔥 GERAR LINK WA.ME
       const waLink = generateWaLinkToClient(lead.telefone_cliente, mensagem);
       window.open(waLink, '_blank'); // Usar window.open para compatibilidade
 
       updateLeadStatus(lead.id, 'contatado');
+      setWhatsAppModalLead(null);
     } catch (error) {
       console.error("Erro ao gerar mensagem do WhatsApp:", error);
       alert("❌ Ocorreu um erro ao tentar gerar a mensagem. Verifique os dados do lead e tente novamente.");
+      setWhatsAppModalLead(null);
     }
   };
 
@@ -995,6 +1007,44 @@ export function LeadsManager({ userId }: { userId: string }) {
           onClose={() => setContractLead(null)}
           onSuccess={() => loadLeads()}
         />
+      )}
+
+      {/* Modal de Confirmação WhatsApp */}
+      {whatsAppModalLead && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Configurar Mensagem</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Deseja incluir os valores individuais de cada produto na mensagem? O valor total será sempre exibido.
+            </p>
+            <div className="flex items-center gap-3 bg-gray-100 p-3 rounded-lg">
+              <input
+                type="checkbox"
+                id="include-values"
+                checked={includeProductValues}
+                onChange={(e) => setIncludeProductValues(e.target.checked)}
+                className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label htmlFor="include-values" className="text-sm font-medium text-gray-800 cursor-pointer">
+                Incluir valores por produto
+              </label>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setWhatsAppModalLead(null)}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleConfirmSendWhatsApp}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors"
+              >
+                Enviar WhatsApp
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
