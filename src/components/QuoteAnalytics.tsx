@@ -14,6 +14,7 @@ import {
   Target,
   Lightbulb,
   Info,
+  Package,
   BarChart2,
 } from 'lucide-react';
 
@@ -62,7 +63,7 @@ interface DeviceStats {
 }
 
 interface Insight {
-  tipo: 'success' | 'warning' | 'error' | 'info';
+  tipo: 'success' | 'warning' | 'error' | 'info' | 'package';
   titulo: string;
   descricao: string;
   sugestao: string;
@@ -195,6 +196,28 @@ export function QuoteAnalytics({ templateId }: QuoteAnalyticsProps) {
       .slice(0, 5); // Retorna o top 5
   };
 
+  const calculateProductCombinations = (): { combination: string[]; count: number }[] => {
+    const combinations = new Map<string, number>();
+
+    analytics.forEach((session) => {
+      if (session.produtos_selecionados) {
+        const products = Object.keys(session.produtos_selecionados).sort();
+        if (products.length > 1) {
+          // Gerar combinações de pares
+          for (let i = 0; i < products.length; i++) {
+            for (let j = i + 1; j < products.length; j++) {
+              const key = [products[i], products[j]].join(' + ');
+              combinations.set(key, (combinations.get(key) || 0) + 1);
+            }
+          }
+        }
+      }
+    });
+
+    // Retorna as 3 combinações mais frequentes que apareceram mais de uma vez
+    return Array.from(combinations.entries()).map(([combination, count]) => ({ combination: combination.split(' + '), count })).filter(c => c.count > 1).sort((a, b) => b.count - a.count).slice(0, 3);
+  };
+
   const generateInsights = (): Insight[] => {
     const metrics = calculateMetrics();
     const popularProducts = calculateProductPopularity();
@@ -277,6 +300,18 @@ export function QuoteAnalytics({ templateId }: QuoteAnalyticsProps) {
       });
     }
 
+    const productCombinations = calculateProductCombinations();
+    if (productCombinations.length > 0) {
+      const topCombination = productCombinations[0];
+      insights.push({
+        tipo: 'package',
+        titulo: 'Combinação Popular',
+        descricao: `Os produtos "${topCombination.combination[0]}" e "${topCombination.combination[1]}" são frequentemente escolhidos juntos.`,
+        sugestao: 'Considere criar um pacote com estes itens para facilitar a escolha e talvez oferecer um pequeno desconto.',
+        icon: Package,
+      });
+    }
+
     if (insights.length === 0) {
       insights.push({
         tipo: 'success',
@@ -294,6 +329,7 @@ export function QuoteAnalytics({ templateId }: QuoteAnalyticsProps) {
   const funnel = calculateFunnel();
   const deviceStats = calculateDeviceStats();
   const popularProducts = calculateProductPopularity();
+  const productCombinations = calculateProductCombinations();
   const insights = generateInsights();
 
   if (loading) {
@@ -458,6 +494,29 @@ export function QuoteAnalytics({ templateId }: QuoteAnalyticsProps) {
             </div>
 
             <div className="bg-white p-6 rounded-lg border border-gray-200">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Package className="w-5 h-5 text-cyan-600" />
+                Combinações Populares
+              </h4>
+              {productCombinations.length > 0 ? (
+                <div className="space-y-3">
+                  {productCombinations.map((combo, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-800 truncate" title={combo.combination.join(' + ')}>
+                        {index + 1}. {combo.combination.join(' + ')}
+                      </span>
+                      <span className="text-sm font-bold text-cyan-700 bg-cyan-100 px-2 py-1 rounded-md">
+                        {combo.count}x
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8"><p className="text-sm text-gray-500">Nenhuma combinação frequente encontrada.</p></div>
+              )}
+            </div>
+
+            <div className="bg-white p-6 rounded-lg border border-gray-200">
               <h4 className="text-lg font-semibold text-gray-900 mb-4">Dispositivos</h4>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -524,12 +583,14 @@ export function QuoteAnalytics({ templateId }: QuoteAnalyticsProps) {
                   warning: 'bg-orange-50 border-orange-200 text-orange-900',
                   error: 'bg-red-50 border-red-200 text-red-900',
                   info: 'bg-blue-50 border-blue-200 text-blue-900',
+                  package: 'bg-cyan-50 border-cyan-200 text-cyan-900',
                 };
                 const iconColors = {
                   success: 'text-green-600',
                   warning: 'text-orange-600',
                   error: 'text-red-600',
                   info: 'text-blue-600',
+                  package: 'text-cyan-600',
                 };
 
                 return (
