@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase, Template } from '../lib/supabase';
-import { Plus, Edit2, Trash2, Copy, ExternalLink, Crown, AlertCircle, GripVertical, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Copy, ExternalLink, Crown, AlertCircle, GripVertical, X, BarChart3 } from 'lucide-react';
 import { usePlanLimits } from '../hooks/usePlanLimits';
 import { UpgradeLimitModal } from './UpgradeLimitModal';
 import {
@@ -20,6 +20,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { QuoteCardInsights } from './QuoteCardInsights';
 
 interface TemplatesManagerProps {
   userId: string;
@@ -34,6 +35,8 @@ interface SortableTemplateCardProps {
   onViewTemplate: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
+  showInsights: boolean;
+  onToggleInsights: () => void;
 }
 
 function SortableTemplateCard({
@@ -44,6 +47,8 @@ function SortableTemplateCard({
   onViewTemplate,
   onDuplicate,
   onDelete,
+  showInsights,
+  onToggleInsights,
 }: SortableTemplateCardProps) {
   const {
     attributes,
@@ -158,6 +163,18 @@ function SortableTemplateCard({
           </button>
         </div>
       </div>
+      {/* Botão para ver insights */}
+      <button
+        onClick={onToggleInsights}
+        className={`w-full mt-0 flex items-center justify-center gap-2 text-gray-600 px-3 py-2 text-sm font-medium transition-colors border-t border-gray-200 ${
+          showInsights ? 'bg-gray-100' : 'bg-gray-50 hover:bg-gray-100'
+        }`}
+      >
+        <BarChart3 className="w-4 h-4" /> {showInsights ? 'Ocultar Insights' : 'Ver Insights'}
+      </button>
+      {showInsights && (
+        <QuoteCardInsights templateId={template.id} />
+      </div>
     </div>
   );
 }
@@ -172,6 +189,7 @@ export function TemplatesManager({ userId, onEditTemplate }: TemplatesManagerPro
   const [templateToEdit, setTemplateToEdit] = useState<Template | null>(null);
   const [editTemplateName, setEditTemplateName] = useState('');
   const [editTemplateTitulo, setEditTemplateTitulo] = useState('');
+  const [insightsVisible, setInsightsVisible] = useState<Record<string, boolean>>({});
   const [templateToDuplicate, setTemplateToDuplicate] = useState<Template | null>(null);
   const [newTemplateName, setNewTemplateName] = useState('');
   const [newTemplateTitulo, setNewTemplateTitulo] = useState('');
@@ -446,6 +464,13 @@ export function TemplatesManager({ userId, onEditTemplate }: TemplatesManagerPro
     }
   };
 
+  const toggleInsights = (templateId: string) => {
+    setInsightsVisible(prev => ({
+      ...prev,
+      [templateId]: !prev[templateId],
+    }));
+  };
+
   const getLimitProgressColor = () => {
     const percentage = (planLimits.templatesUsed / planLimits.templatesLimit) * 100;
     if (percentage >= 90) return 'bg-red-600';
@@ -607,6 +632,8 @@ export function TemplatesManager({ userId, onEditTemplate }: TemplatesManagerPro
                     onViewTemplate={() => window.open(getTemplateUrl(template), '_blank')}
                     onDuplicate={() => handleDuplicateClick(template)}
                     onDelete={() => handleDeleteTemplate(template.id)}
+                    showInsights={!!insightsVisible[template.id]}
+                    onToggleInsights={() => toggleInsights(template.id)}
                   />
                 ))}
               </div>

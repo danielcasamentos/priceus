@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Eye, TrendingUp, Star, Loader2 } from 'lucide-react';
+import { Eye, TrendingUp, Star, Loader2, MousePointerClick } from 'lucide-react';
 
 interface QuoteCardInsightsProps {
   templateId: string;
@@ -10,6 +10,7 @@ interface AnalyticsSummary {
   totalVisualizacoes: number;
   taxaConversao: number;
   produtoMaisPopular?: string;
+  interacoesMedias: number;
 }
 
 export function QuoteCardInsights({ templateId }: QuoteCardInsightsProps) {
@@ -30,20 +31,22 @@ export function QuoteCardInsights({ templateId }: QuoteCardInsightsProps) {
 
         const { data, error } = await supabase
           .from('analytics_orcamentos')
-          .select('orcamento_enviado, produtos_selecionados')
+          .select('orcamento_enviado, produtos_selecionados, interacoes')
           .eq('template_id', templateId)
           .gte('data_acesso', thirtyDaysAgo.toISOString());
 
         if (error) throw error;
 
         if (!data || data.length === 0) {
-          setSummary({ totalVisualizacoes: 0, taxaConversao: 0 });
+          setSummary({ totalVisualizacoes: 0, taxaConversao: 0, interacoesMedias: 0 });
           return;
         }
 
         const totalVisualizacoes = data.length;
         const totalConversoes = data.filter(a => a.orcamento_enviado).length;
         const taxaConversao = totalVisualizacoes > 0 ? (totalConversoes / totalVisualizacoes) * 100 : 0;
+        const totalInteracoes = data.reduce((acc, a) => acc + (a.interacoes || 0), 0);
+        const interacoesMedias = totalVisualizacoes > 0 ? totalInteracoes / totalVisualizacoes : 0;
 
         const productCounts = new Map<string, number>();
         data.forEach(a => {
@@ -63,6 +66,7 @@ export function QuoteCardInsights({ templateId }: QuoteCardInsightsProps) {
           totalVisualizacoes,
           taxaConversao,
           produtoMaisPopular,
+          interacoesMedias,
         });
 
       } catch (err) {
@@ -95,8 +99,8 @@ export function QuoteCardInsights({ templateId }: QuoteCardInsightsProps) {
 
   return (
     <div className="p-3 bg-gray-50 rounded-b-lg border-t border-gray-200">
-      <h4 className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">Insights (30 dias)</h4>
-      <div className="grid grid-cols-2 gap-2 text-xs">
+      <h4 className="text-xs font-bold text-gray-700 mb-3 uppercase tracking-wider">Insights (Últimos 30 dias)</h4>
+      <div className="grid grid-cols-3 gap-3 text-xs">
         <div className="flex items-center gap-2" title="Total de Visitas">
           <Eye className="w-4 h-4 text-blue-500 flex-shrink-0" />
           <div>
@@ -111,8 +115,15 @@ export function QuoteCardInsights({ templateId }: QuoteCardInsightsProps) {
             <div className="text-gray-500">Conversão</div>
           </div>
         </div>
+        <div className="flex items-center gap-2" title="Média de Interações por Visita">
+          <MousePointerClick className="w-4 h-4 text-purple-500 flex-shrink-0" />
+          <div>
+            <div className="font-semibold text-gray-800">{summary.interacoesMedias.toFixed(1)}</div>
+            <div className="text-gray-500">Interações</div>
+          </div>
+        </div>
         {summary.produtoMaisPopular && (
-          <div className="col-span-2 flex items-center gap-2 pt-2 border-t border-gray-200 mt-1" title={`Produto mais popular: ${summary.produtoMaisPopular}`}>
+          <div className="col-span-3 flex items-center gap-2 pt-2 border-t border-gray-200 mt-2" title={`Produto mais popular: ${summary.produtoMaisPopular}`}>
             <Star className="w-4 h-4 text-yellow-500 flex-shrink-0" />
             <div className="min-w-0">
               <div className="font-semibold text-gray-800 truncate">

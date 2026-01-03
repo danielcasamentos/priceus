@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'; // Re-confirmando importação explícita de React
 import { supabase, Lead, LeadStatus } from '../lib/supabase'; // Importando LeadStatus para tipagem e Lead
 import { formatCurrency, formatDate, formatDateTime } from '../lib/utils';
-import { Trash2, Crown, AlertTriangle, TrendingUp, FileSignature, Star, CheckSquare } from 'lucide-react';
+import { Trash2, Crown, AlertTriangle, TrendingUp, FileSignature, Star, CheckSquare, Send } from 'lucide-react';
 import { usePlanLimits } from '../hooks/usePlanLimits';
 import { UpgradeLimitModal } from './UpgradeLimitModal';
 import { generateWhatsAppMessage, generateWaLinkToClient, PaymentMethod } from '../lib/whatsappMessageGenerator';
@@ -78,6 +78,9 @@ export function LeadsManager({ userId }: { userId: string }) {
 
   const [whatsAppModalLead, setWhatsAppModalLead] = useState<Lead | null>(null);
   const [includeProductValues, setIncludeProductValues] = useState<boolean>(true);
+
+  const [resendContractLead, setResendContractLead] = useState<Lead | null>(null);
+  const [isResending, setIsResending] = useState(false);
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -452,6 +455,60 @@ export function LeadsManager({ userId }: { userId: string }) {
     }
   };
 
+  const handleResendContract = async (lead: Lead) => {
+    if (!lead.telefone_cliente) {
+        alert('❌ Este lead não possui telefone cadastrado');
+        return;
+    }
+
+    setIsResending(true);
+    try {
+        // 1. Fetch the existing contract for the lead
+        const { data: contract, error } = await supabase
+            .from('contracts')
+            .select('token, lead_data_json, expires_at')
+            .eq('lead_id', lead.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (error || !contract) {
+            throw new Error('Contrato não encontrado para este lead.');
+        }
+
+        // 2. Construct the link
+        const contractLink = `${window.location.origin}/contrato/${contract.token}`;
+
+        // 3. Construct the message
+        const leadData = contract.lead_data_json;
+        const expirationDate = new Date(contract.expires_at);
+        const today = new Date();
+        const daysRemaining = Math.ceil((expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+        const message = `Olá ${leadData.nome_cliente}! 📄
+
+Estou reenviando o link para seu contrato digital.
+
+Acesse o link abaixo para revisar e assinar:
+${contractLink}
+
+Lembre-se que o link ${daysRemaining > 0 ? `expira em ${daysRemaining} dia(s)` : 'pode expirar em breve'}.
+
+Qualquer dúvida, estou à disposição!`;
+
+        // 4. Generate wa.me link and open
+        const waLink = generateWaLinkToClient(lead.telefone_cliente, message);
+        window.open(waLink, '_blank');
+
+        setResendContractLead(null);
+    } catch (error) {
+        console.error("Erro ao reenviar contrato:", error);
+        alert(`❌ Ocorreu um erro ao tentar reenviar o contrato: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+    } finally {
+        setIsResending(false);
+    }
+  };
+
   const handleSolicitarAvaliacao = async (lead: LeadWithReview) => {
     if (lead.status !== 'convertido') {
       alert('⚠️ Apenas leads convertidos podem receber solicitação de avaliação.');
@@ -768,14 +825,23 @@ export function LeadsManager({ userId }: { userId: string }) {
                           💬
                         </button>
                       )}
-                      <button
-                        onClick={() => setContractLead(lead)}
-                        className="text-purple-600 hover:text-purple-900 disabled:text-gray-400 disabled:cursor-not-allowed"
-                        title="Gerar contrato"
-                        disabled={contracts[lead.id]}
-                      >
-                        <FileSignature className="w-4 h-4 inline" />
-                      </button>
+                      {contracts[lead.id] ? (
+                        <button
+                          onClick={() => setResendContractLead(lead)}
+                          className="text-blue-600 hover:text-blue-900"
+                          title="Reenviar contrato"
+                        >
+                          <Send className="w-4 h-4 inline" />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => setContractLead(lead)}
+                          className="text-purple-600 hover:text-purple-900"
+                          title="Gerar contrato"
+                        >
+                          <FileSignature className="w-4 h-4 inline" />
+                        </button>
+                      )}
                       {lead.status === 'convertido' && lead.telefone_cliente && (
                         <button 
                           onClick={() => handleSolicitarAvaliacao(lead)}
@@ -1041,6 +1107,41 @@ export function LeadsManager({ userId }: { userId: string }) {
                 className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors"
               >
                 Enviar WhatsApp
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Reenvio de Contrato */}
+      {resendContractLead && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Reenviar Contrato</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Deseja reenviar o link do contrato para {resendContractLead.nome_cliente}?
+            </p>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setResendContractLead(null)}
+                disabled={isResending}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => handleResendContract(resendContractLead)}
+                disabled={isResending}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isResending ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Enviando...
+                  </>
+                ) : (
+                  'Reenviar via WhatsApp'
+                )}
               </button>
             </div>
           </div>
