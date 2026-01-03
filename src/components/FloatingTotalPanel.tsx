@@ -1,90 +1,114 @@
-import { useMemo, useState, useEffect } from 'react';
-import { formatCurrency } from '../lib/utils';
-import { ShoppingCart } from 'lucide-react';
-import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
+import React, { useState } from 'react';
+import { ShoppingCart, X } from 'lucide-react';
+import { formatCurrency, cn } from '../lib/utils';
+import { PriceBreakdown } from '../lib/whatsappMessageGenerator';
 
 interface FloatingTotalPanelProps {
-  calculateTotal: () => number;
-  selectedProdutos: Record<string, number>;
-  produtos: any[]; // Apenas para contagem, não precisa de tipo complexo
-  ocultarValoresIntermediarios: boolean;
-  produtosSectionRef: React.RefObject<HTMLElement>;
-  totalSectionRef: React.RefObject<HTMLElement>;
+  isVisible: boolean;
+  priceBreakdown: PriceBreakdown;
+  itemsCount: number;
+  className?: string;
 }
 
-export function FloatingTotalPanel({
-  calculateTotal,
-  selectedProdutos,
-  ocultarValoresIntermediarios,
-  produtosSectionRef,
-  totalSectionRef,
+export default function FloatingTotalPanel({
+  isVisible,
+  priceBreakdown,
+  itemsCount,
+  className,
 }: FloatingTotalPanelProps) {
-  const total = calculateTotal();
-  const totalItems = useMemo(() => {
-    return Object.values(selectedProdutos).reduce((sum, qty) => sum + qty, 0);
-  }, [selectedProdutos]);
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  // Estado para "lembrar" que o usuário já rolou até a seção de produtos.
-  const [hasEnteredProductsSection, setHasEnteredProductsSection] = useState(false);
+  const toggleExpand = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
+  };
 
-  // Observa a seção de produtos. Quando ela entra na tela, ativa o estado `hasEnteredProductsSection`.
-  const isProdutosSectionOnScreen = useIntersectionObserver(produtosSectionRef, { threshold: 0.1 });
-  // Observa a seção de total no final da página.
-  const isTotalSectionOnScreen = useIntersectionObserver(totalSectionRef, { threshold: 0.1 });
+  const CircularButton = () => (
+    <button
+      onClick={toggleExpand}
+      className={cn(
+        "w-24 h-24 rounded-full bg-gradient-to-br from-green-500 to-green-700 text-white flex flex-col items-center justify-center shadow-2xl transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-green-300"
+      )}
+      aria-label="Ver resumo do orçamento"
+    >
+      <div className="relative">
+        <ShoppingCart className="w-7 h-7" />
+        {itemsCount > 0 && (
+          <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-white">
+            {itemsCount}
+          </span>
+        )}
+      </div>
+      <span className="text-base font-bold mt-1">{formatCurrency(priceBreakdown.total)}</span>
+    </button>
+  );
 
-  useEffect(() => {
-    if (isProdutosSectionOnScreen) {
-      setHasEnteredProductsSection(true);
-    }
-  }, [isProdutosSectionOnScreen]);
+  const ExpandedDetails = () => (
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setIsExpanded(false)}>
+      <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 space-y-4 animate-fade-in-up" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-bold text-gray-900">Resumo do Orçamento</h3>
+          <button onClick={() => setIsExpanded(false)} className="p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-  // A condição para mostrar o painel é:
-  // 1. O usuário JÁ ENTROU na seção de produtos.
-  // 2. A seção de total final AINDA NÃO está na tela.
-  const shouldShow = hasEnteredProductsSection && !isTotalSectionOnScreen && !ocultarValoresIntermediarios && totalItems > 0;
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between text-gray-600">
+            <span>Subtotal</span>
+            <span>{formatCurrency(priceBreakdown.subtotal)}</span>
+          </div>
 
-  // Estado para controlar a montagem/desmontagem com animação
-  const [isMounted, setIsMounted] = useState(false);
+          {priceBreakdown.ajusteSazonal !== 0 && (
+            <div className="flex justify-between text-blue-600">
+              <span>Ajuste Sazonal</span>
+              <span>{priceBreakdown.ajusteSazonal > 0 ? '+' : ''}{formatCurrency(priceBreakdown.ajusteSazonal)}</span>
+            </div>
+          )}
 
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    if (shouldShow) {
-      setIsMounted(true);
-    } else {
-      // Espera a animação de fade-out (300ms) antes de desmontar
-      timeoutId = setTimeout(() => setIsMounted(false), 300);
-    }
-    return () => clearTimeout(timeoutId);
-  }, [shouldShow]);
+          {(priceBreakdown.ajusteGeografico.percentual !== 0 || priceBreakdown.ajusteGeografico.taxa !== 0) && (
+            <div className="flex justify-between text-purple-600">
+              <span>Ajuste Regional</span>
+              <span>
+                {priceBreakdown.ajusteGeografico.percentual !== 0 && `${priceBreakdown.ajusteGeografico.percentual > 0 ? '+' : ''}${priceBreakdown.ajusteGeografico.percentual}% `}
+                {priceBreakdown.ajusteGeografico.taxa !== 0 && `+ ${formatCurrency(priceBreakdown.ajusteGeografico.taxa)}`}
+              </span>
+            </div>
+          )}
 
-  if (!isMounted) {
-    return null;
-  }
+          {priceBreakdown.descontoCupom > 0 && (
+            <div className="flex justify-between text-green-600">
+              <span>Desconto (Cupom)</span>
+              <span>-{formatCurrency(priceBreakdown.descontoCupom)}</span>
+            </div>
+          )}
+
+          {priceBreakdown.acrescimoFormaPagamento !== 0 && (
+            <div className="flex justify-between text-orange-600">
+              <span>Ajuste Pagamento</span>
+              <span>{priceBreakdown.acrescimoFormaPagamento > 0 ? '+' : ''}{formatCurrency(priceBreakdown.acrescimoFormaPagamento)}</span>
+            </div>
+          )}
+
+          <div className="pt-2 mt-2 border-t border-gray-200 flex justify-between font-bold text-gray-900 text-base">
+            <span>Total Final</span>
+            <span>{formatCurrency(priceBreakdown.total)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
-    // Aplica classes de transição e controla a opacidade com base na condição 'shouldShow'.
-    <div className={`fixed bottom-5 left-5 z-40 transition-opacity duration-300 ${shouldShow ? 'opacity-100' : 'opacity-0'}`}
+    <div
+      className={cn(
+        "fixed bottom-6 right-6 z-40 transition-all duration-300 ease-in-out",
+        isVisible ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0 pointer-events-none",
+        className
+      )}
     >
-      <a
-        href="#total-section"
-        className={`
-          w-20 h-20 sm:w-24 sm:h-24
-          flex flex-col items-center justify-center
-          bg-blue-600 hover:bg-blue-700
-          text-white
-          rounded-full
-          shadow-lg hover:shadow-xl
-          transition-all duration-300
-          transform hover:scale-105
-          focus:outline-none focus:ring-4 focus:ring-opacity-50 ring-blue-300
-        `}
-        aria-label={`Ver total do orçamento: ${formatCurrency(total)}`}
-      >
-        <ShoppingCart className="w-6 h-6 sm:w-7 sm:h-7" />
-        <span className="font-bold text-sm sm:text-base mt-1">
-          {formatCurrency(total)}
-        </span>
-      </a>
+      <CircularButton />
+      {isExpanded && <ExpandedDetails />}
     </div>
   );
 }

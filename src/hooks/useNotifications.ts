@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase, Notification } from '../lib/supabase';
 import { useTrialStatus } from '../hooks/useTrialStatus';
 import { User } from '@supabase/supabase-js';
+import { useFcmToken } from './useFcmToken';
 
 /**
  * Hook customizado para gerenciar notificações.
@@ -20,6 +21,9 @@ export function useNotifications(user: User | null) {
   const [loading, setLoading] = useState(true);
   const trialStatus = useTrialStatus(user);
   const userId = user?.id;
+
+  // Inicializa o sistema de Push Notifications (FCM)
+  useFcmToken(user);
 
   const loadNotifications = useCallback(async () => {
     if (!userId) return;
