@@ -11,6 +11,7 @@ interface ContractTemplate {
   content_text: string;
   created_at?: string;
   updated_at?: string;
+  client_observacoes_enabled?: boolean;
 }
 
 interface ContractTemplateEditorProps {
@@ -71,6 +72,7 @@ const QuillWrapper = forwardRef<ReactQuill, React.ComponentProps<typeof ReactQui
 export function ContractTemplateEditor({ userId, template, onSave, onCancel }: ContractTemplateEditorProps) {
   const [name, setName] = useState(template?.name || '');
   const [content, setContent] = useState(template?.content_text || '');
+  const [clientObsEnabled, setClientObsEnabled] = useState(template?.client_observacoes_enabled || false);
   const [saving, setSaving] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
@@ -92,6 +94,7 @@ export function ContractTemplateEditor({ userId, template, onSave, onCancel }: C
         user_id: userId,
         name: name.trim(),
         content_text: content, // Salvar o conteúdo HTML
+        client_observacoes_enabled: clientObsEnabled,
       };
 
       if (template?.id) {
@@ -166,6 +169,24 @@ export function ContractTemplateEditor({ userId, template, onSave, onCancel }: C
                   placeholder="Ex: Contrato de Serviços Fotográficos - Casamento"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Campo de Observações do Cliente
+                </label>
+                <div className="flex items-center justify-between bg-gray-100 p-3 rounded-lg">
+                  <span className="text-sm text-gray-800">Habilitar campo para o cliente adicionar observações no contrato?</span>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={clientObsEnabled}
+                      onChange={(e) => setClientObsEnabled(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
               </div>
 
               <div>

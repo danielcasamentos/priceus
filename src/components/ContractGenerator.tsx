@@ -41,6 +41,7 @@ export function ContractGenerator({ userId, lead, onClose, onSuccess }: Contract
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
   const [contractContent, setContractContent] = useState(''); // 🔥 Novo estado para o conteúdo editável
   const [isEditing, setIsEditing] = useState(false); // 🔥 Novo estado para controlar o modo de edição
+  const [userObservations, setUserObservations] = useState('');
   const [expirationDays, setExpirationDays] = useState(7);
   const [loading, setLoading] = useState(false);
   const [generatedLink, setGeneratedLink] = useState<string | null>(null);
@@ -255,6 +256,7 @@ export function ContractGenerator({ userId, lead, onClose, onSuccess }: Contract
           user_data_json: userData,
           payment_details_json: formaPagamentoCompleta || null, // 🔥 Salva em uma coluna dedicada
           user_signature_base64: businessSettings.signature_base64,
+          observacoes_user: userObservations,
           status: 'pending', // Status inicial do contrato
           expires_at: expiresAt.toISOString(),
         })
@@ -525,6 +527,20 @@ Atenciosamente`;
                 O link expirará automaticamente após este período
               </p>
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Observações Internas (Opcional)
+              </label>
+              <textarea
+                value={userObservations}
+                onChange={(e) => setUserObservations(e.target.value)}
+                rows={3}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="Adicione notas ou observações internas. Elas não serão visíveis para o cliente."
+              />
+            </div>
+
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h3 className="font-semibold text-blue-900 mb-2">Dados que serão incluídos:</h3>
